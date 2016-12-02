@@ -16,11 +16,11 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{5f37ec8c-c624-4f3d-8d2e-1571a1df475b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Shaders\VertexShaders">
-      <UniqueIdentifier>{8f056447-7b05-4499-94dd-dd727be492e3}</UniqueIdentifier>
+    <Filter Include="Shaders\Vertex Shaders">
+      <UniqueIdentifier>{27438c69-77b4-4e98-9e7b-1ae892d4af9f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Shaders\PixelShaders">
-      <UniqueIdentifier>{7cdb5732-1ad5-4c20-b364-17099456c442}</UniqueIdentifier>
+    <Filter Include="Shaders\Pixel Shaders">
+      <UniqueIdentifier>{14423863-70ad-4d74-b632-3be86c03be01}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -97,23 +97,29 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Assets\PShaders\PixelShader.hlsl">
-      <Filter>Shaders\PixelShaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Assets\PShaders\psPointLight.hlsl">
-      <Filter>Shaders\PixelShaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Assets\PShaders\psSpotLight .hlsl">
-      <Filter>Shaders\PixelShaders</Filter>
-    </FxCompile>
     <FxCompile Include="Assets\VShaders\VertexShader.hlsl">
-      <Filter>Shaders\VertexShaders</Filter>
+      <Filter>Shaders\Vertex Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Assets\VShaders\vsPointLight.hlsl">
-      <Filter>Shaders\VertexShaders</Filter>
+      <Filter>Shaders\Vertex Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Assets\VShaders\vsSpotLight.hlsl">
-      <Filter>Shaders\VertexShaders</Filter>
+      <Filter>Shaders\Vertex Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Assets\PShaders\PixelShader.hlsl">
+      <Filter>Shaders\Pixel Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Assets\PShaders\psPointLight.hlsl">
+      <Filter>Shaders\Pixel Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Assets\PShaders\psSpotLight.hlsl">
+      <Filter>Shaders\Pixel Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Assets\PShaders\psLighting.hlsl">
+      <Filter>Shaders\Pixel Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Assets\VShaders\vsLighting.hlsl">
+      <Filter>Shaders\Vertex Shaders</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

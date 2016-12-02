@@ -50,35 +50,49 @@ Game::~Game()
 // --------------------------------------------------------
 void Game::Init()
 {
-	dirLight1 = { XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f),
-				XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f),
+	/*dirLight2 = { XMFLOAT4(0.5f, 1.0f, 0.32f, 1.0f),
+	XMFLOAT3(1.0f, -1.0f, 0.0f) };
+
+	dirLight3 = { XMFLOAT4(0.5f, 1.0f, 0.32f, 1.0f),
+	XMFLOAT3(-1.0f, 1.0f, 1.0f) };*/
+
+	dirLight1 = { XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f),
 				XMFLOAT3(1.0f, -1.0f, 0.0f) };
 
-	dirLight2 = { XMFLOAT4(0.3f, 0.1f, 0.2f, 1.0f),
-				XMFLOAT4(0.5f, 1.0f, 0.32f, 1.0f),
-				XMFLOAT3(1.0f, -1.0f, 0.0f) };
+	pointLight = { XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f),
+				XMFLOAT3(1.0f, -1.0f, 0.0f),
+				2.0f };
 
-	dirLight3 = { XMFLOAT4(0.3f, 0.1f, 0.2f, 1.0f),
-				XMFLOAT4(0.5f, 1.0f, 0.32f, 1.0f),
-				XMFLOAT3(-1.0f, 1.0f, 1.0f) };
+	spotLight = { XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f),
+				XMFLOAT3(1.0f, 0.0f, 0.0f),
+				2.0f,
+				XMFLOAT3(-1.0f, 0.0f, 0.0f) };
 
+	lights = { { spotLight },
+			{ pointLight },
+			dirLight1,
+			XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f),
+			1,
+			1 };
 
 	camera = new Camera();
 
-	//cmanager = new ContentManager(device, context);
 	cmanager = new ContentManager();
 	cmanager->Init(device, context);
 	Material* mat1 = cmanager->LoadMaterial("soilDirLight", "sampler", "VertexShader.cso", "PixelShader.cso", "soilrough.png");
 	Material* mat2 = cmanager->LoadMaterial("styroDirLight", "sampler", "VertexShader.cso", "PixelShader.cso", "styrofoam.png");
+	Material* mat3 = cmanager->LoadMaterial("soilPointLight", "sampler", "vsPointLight.cso", "psPointLight.cso", "soilrough.png");
+	Material* mat4 = cmanager->LoadMaterial("soilSpotLight", "sampler", "vsSpotLight.cso", "psSpotLight.cso", "soilrough.png");
+	Material* mat5 = cmanager->LoadMaterial("soilLighting", "sampler", "vsLighting.cso", "psLighting.cso", "soilrough.png");
 
 	entities = {
-		new Entity(context, cmanager->GetMesh("cube.obj"), cmanager->GetMaterial("soilDirLight"),{ 0.5, 0.5, 0 }, 0),
-		new Entity(context, cmanager->GetMesh("cone.obj"), cmanager->GetMaterial("styroDirLight"),{ 0, 0, 0 }, 0),
-		new Entity(context, cmanager->GetMesh("helix.obj"), cmanager->GetMaterial("soilDirLight"),{ -1.0f, 0, 0 }, 0),
-		new Entity(context, cmanager->GetMesh("cube.obj"), cmanager->GetMaterial("styroDirLight"),{ 0.0f, -0.5f, 0 }, 0),
-		new Entity(context, cmanager->GetMesh("avent.obj"), cmanager->GetMaterial("soilDirLight"),{ 1.0f, -1.0f, 0 }, 0) };
+		new Entity(context, cmanager->GetMesh("cube.obj"), mat5, { 0.5, 0.5, 0 }, 0),
+		new Entity(context, cmanager->GetMesh("cone.obj"), mat5, { 0, 0, 0 }, 0),
+		new Entity(context, cmanager->GetMesh("helix.obj"), mat5, { -1.0f, 0, 0 }, 0),
+		new Entity(context, cmanager->GetMesh("cube.obj"), mat5, { 0.0f, -0.5f, 0 }, 0),
+		new Entity(context, cmanager->GetMesh("torus.obj"), mat5, { 1.0f, -1.0f, 0 }, 0) };
 
-	ID3D11Buffer* test = entities[0]->getMesh()->GetVertexBuffer();
+	//ID3D11Buffer* test = entities[0]->getMesh()->GetVertexBuffer();
 
 	camera->updateProjection(width, height);
 	// Tell the input assembler stage of the pipeline what kind of
@@ -112,7 +126,7 @@ void Game::Update(float deltaTime, float totalTime)
 
 	for (int i = 0; i < entities.size(); i++)
 	{
-		entities[i]->move({ 0.25f * deltaTime, 0.0f * deltaTime, 0.0f * deltaTime });
+		//entities[i]->move({ 0.25f * deltaTime, 0.0f * deltaTime, 0.0f * deltaTime });
 		entities[i]->update(deltaTime);
 	}
 }
@@ -120,10 +134,11 @@ void Game::Update(float deltaTime, float totalTime)
 // --------------------------------------------------------
 // Clear the screen, redraw everything, present to the user
 // --------------------------------------------------------
-void Game::Draw(float deltaTime, float totalTime)
+void Game::Draw(float deltaTiame, float totalTime)
 {
 	// Background color (Cornflower Blue in this case) for clearing
 	const float color[4] = {0.4f, 0.6f, 0.75f, 0.0f};
+	//const float color[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
 	// Clear the render target and depth buffer (erases what's on the screen)
 	//  - Do this ONCE PER FRAME
@@ -147,12 +162,17 @@ void Game::Draw(float deltaTime, float totalTime)
 		Material* mat = entity->getMat();
 		ID3D11SamplerState* sampler = mat->getSampler();
 		ID3D11ShaderResourceView* shaderResView = mat->getShaderResView();
+		SimplePixelShader* ps = mat->getPShader();
 
 		mat->getVShader()->SetMatrix4x4("view", camera->getViewMatrix());
 		mat->getVShader()->SetMatrix4x4("projection", camera->getProjectionMatrix());
-		mat->getPShader()->SetData("dirLight1", &dirLight1, sizeof(DirectionalLight));
+		//ps->SetData("spotLights", lights.spotLights, sizeof(SpotLight) * 8);
+		mat->getPShader()->SetData("lights", &lights, sizeof(Lights));
+		//mat->getPShader()->SetData("spotLight", &spotLight, sizeof(SpotLight));
+		//mat->getPShader()->SetData("pointLight", &pointLight, sizeof(PointLight));
+		/*mat->getPShader()->SetData("dirLight1", &dirLight1, sizeof(DirectionalLight));
 		mat->getPShader()->SetData("dirLight2", &dirLight2, sizeof(DirectionalLight));
-		mat->getPShader()->SetData("dirLight3", &dirLight3, sizeof(DirectionalLight));
+		mat->getPShader()->SetData("dirLight3", &dirLight3, sizeof(DirectionalLight));*/
 		mat->getPShader()->SetSamplerState("basicSampler", sampler);
 		mat->getPShader()->SetShaderResourceView("diffuseTexture", shaderResView);
 	

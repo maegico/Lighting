@@ -1,15 +1,19 @@
-struct DirectionalLight
+struct PointLight
 {
 	float4 AmbientColor;
 	float4 DiffuseColor;
-	float3 Direction;
+	float3 Position;
+	float DiffuseIntensity;
 };
+
+//make arrays in the constant buffer
+//make a max size for the arrays
+//make a parameterized for loop for lighting
+//on CPU side
 
 cbuffer lights : register(b0)
 {
-	DirectionalLight dirLight1;
-	DirectionalLight dirLight2;
-	DirectionalLight dirLight3;
+	PointLight pointLight;
 };
 
 Texture2D diffuseTexture : register(t0);
@@ -28,21 +32,37 @@ struct VertexToPixel
 	//  |    |                |
 	//  v    v                v
 	float4 position		: SV_POSITION;
+	float4 worldPos		: POSITION;
 	float3 normal		: NORMAL;
 	float2 uv			: TEXCOORD;
 };
 
-float4 calcDirLight(float3 normal, DirectionalLight dirLight)
+//Nice read!
+//http://gamedev.stackexchange.com/questions/56897/glsl-light-attenuation-color-and-intensity-formula
+float4 calcPointLight(float4 worldPos, float3 normal, PointLight pointLight)
 {
-	float3 dirToLight = normalize(-dirLight.Direction);
+	//multiply attenuation by intensity
+	//attenuation function: 1.0 / (1.0 + a*dist + b*dist*dist))
+	//float a = 100;
+	//float b = 3;
+
+	//normalize(input.worldPos - (-dirLight.Direction)) <-- actually wrong(most likely)
+	float3 pointLightDirection = worldPos - pointLight.Position;
+	//float dist = sqrt(dot(pointLightDirection, pointLightDirection));
+	//dist = max(dist, 5);
+	//float attenuation = 1.0 / (1.0 + a*dist + b*dist*dist);
+	pointLightDirection = -normalize(pointLightDirection);
+
+	//float finalIntensity = attenuation * pointLight.DiffuseIntensity;
 
 	//N dot L
-	float lightAmount = dot(normal, dirToLight);
+	float lightAmount = dot(normal, pointLightDirection);
 	lightAmount = saturate(lightAmount);
 
-	float4 scaledDiffuse = dirLight.DiffuseColor * lightAmount;
+	//float4 scaledDiffuse = pointLight.DiffuseColor * lightAmount * finalIntensity;
+	float4 scaledDiffuse = pointLight.DiffuseColor * lightAmount;
 
-	return scaledDiffuse + dirLight.AmbientColor;
+	return scaledDiffuse + pointLight.AmbientColor;
 }
 
 // --------------------------------------------------------
@@ -60,12 +80,10 @@ float4 main(VertexToPixel input) : SV_TARGET
 
 	float4 surfaceColor = diffuseTexture.Sample(basicSampler, input.uv);
 
-	float4 dirL1 = calcDirLight(input.normal, dirLight1);
-	float4 dirL2 = calcDirLight(input.normal, dirLight2);
-	float4 dirL3 = calcDirLight(input.normal, dirLight3);
+	float4 pointL = calcPointLight(input.worldPos, input.normal, pointLight);
 
 	// - This color (like most values passing through the rasterizer) is 
 	//   interpolated for each pixel between the corresponding vertices 
 	//   of the triangle we're rendering
-	return (dirL1 + dirL2 + dirL3) * surfaceColor;
+	return (pointL) * surfaceColor;
 }

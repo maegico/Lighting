@@ -37,6 +37,9 @@ private:
 	DirectionalLight dirLight1;
 	DirectionalLight dirLight2;
 	DirectionalLight dirLight3;
+	PointLight pointLight;
+	SpotLight spotLight;
+	Lights lights;
 
 	ContentManager* cmanager;
 	std::vector<Entity*>  entities;

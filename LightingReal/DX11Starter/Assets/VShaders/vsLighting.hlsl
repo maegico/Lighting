@@ -17,7 +17,7 @@ cbuffer externalData : register(b0)
 // - The name of the struct itself is unimportant, but should be descriptive
 // - Each variable must have a semantic, which defines its usage
 struct VertexShaderInput
-{ 
+{
 	// Data type
 	//  |
 	//  |   Name          Semantic
@@ -41,6 +41,7 @@ struct VertexToPixel
 	//  |    |                |
 	//  v    v                v
 	float4 position		: SV_POSITION;	// XYZW position (System Value Position)
+	float4 worldPos		: POSITION;
 	float3 normal		: NORMAL;
 	float2 uv			: TEXCOORD;
 };
@@ -52,7 +53,7 @@ struct VertexToPixel
 // - Output is a single struct of data to pass down the pipeline
 // - Named "main" because that's the default the shader compiler looks for
 // --------------------------------------------------------
-VertexToPixel main( VertexShaderInput input )
+VertexToPixel main(VertexShaderInput input)
 {
 	// Set up output struct
 	VertexToPixel output;
@@ -71,6 +72,7 @@ VertexToPixel main( VertexShaderInput input )
 	//
 	// The result is essentially the position (XY) of the vertex on our 2D 
 	// screen and the distance (Z) from the camera (the "depth" of the pixel)
+	output.worldPos = mul(float4(input.position, 1.0f), world);
 	output.position = mul(float4(input.position, 1.0f), worldViewProj);
 	output.normal = mul(input.normal, (float3x3)world);
 
